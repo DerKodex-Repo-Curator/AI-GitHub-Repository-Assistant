@@ -1,161 +1,94 @@
 import streamlit as st
+import time
 import uuid
-from chain import chain
+import os
+from dotenv import load_dotenv
 
-# 1. Page Configuration (Keep your existing config)
-st.set_page_config(
-    page_title="GitHub Assistant", 
-    page_icon="🧩", 
-    layout="wide",
-    initial_sidebar_state="expanded"
-)
+# 1. BULLETPROOF ENV LOADER
+# This forces Python to look in the 'src' folder for the .env file, 
+# completely bypassing any terminal pathing issues.
+env_path = os.path.join(os.path.dirname(__file__), ".env")
+load_dotenv(env_path)
 
-# --- NEW: Inject Amazing Custom CSS ---
-st.markdown("""
-<style>
-    /* Hide Streamlit default header, footer, and hamburger menu for a clean app feel */
-    #MainMenu {visibility: hidden;}
-    footer {visibility: hidden;}
-    header {visibility: hidden;}
+# (Note: If you already moved the .env file out to the main github-repo-assistant folder, 
+# change the line above to: load_dotenv(os.path.join(os.path.dirname(__file__), "..", ".env")) )
 
-    /* Global App Background (GitHub Dark theme) */
-    .stApp {
-        background-color: #0d1117;
-    }
+from ingest import process_github_repo
 
-    /* Sidebar Styling */
-    [data-testid="stSidebar"] {
-        background-color: #010409 !important;
-        border-right: 1px solid #30363d;
-    }
-
-    /* Style the Chat Input Container */
-    .stChatInputContainer {
-        padding-bottom: 20px;
-    }
-    
-    /* Sleek Chat Input Box */
-    .stChatInputContainer > div {
-        border-radius: 20px !important;
-        border: 1px solid #30363d !important;
-        background-color: #161b22 !important;
-        box-shadow: 0 8px 24px rgba(0,0,0,0.2) !important;
-        transition: all 0.3s ease;
-    }
-    
-    /* Glow effect when typing */
-    .stChatInputContainer > div:focus-within {
-        border-color: #58a6ff !important;
-        box-shadow: 0 0 15px rgba(88, 166, 255, 0.2) !important;
-    }
-
-    /* Style the Chat Messages (Bubbles) */
-    .stChatMessage {
-        background-color: #161b22;
-        border-radius: 12px;
-        border: 1px solid #21262d;
-        padding: 15px;
-        margin-bottom: 15px;
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-    }
-
-    /* Typography Adjustments */
-    h1, h2, h3, h4 {
-        color: #c9d1d9 !important;
-        font-family: 'Inter', sans-serif;
-    }
-    p, span, div {
-        color: #8b949e;
-    }
-
-    /* Custom Scrollbar for a premium feel */
-    ::-webkit-scrollbar {
-        width: 8px;
-        height: 8px;
-    }
-    ::-webkit-scrollbar-track {
-        background: #0d1117; 
-    }
-    ::-webkit-scrollbar-thumb {
-        background: #30363d; 
-        border-radius: 4px;
-    }
-    ::-webkit-scrollbar-thumb:hover {
-        background: #58a6ff; 
-    }
-</style>
-""", unsafe_allow_html=True)
+# Import your LLM chain
+from chain import get_chain
 
 
+st.set_page_config(page_title="AI GitHub Assistant")
 
-
-# 2. Sidebar Configuration
-with st.sidebar:
-    st.header("⚙️ Control Panel")
-    st.markdown("Manage your assistant session here.")
-    
-    # Clear Chat Button
-    if st.button("🗑️ Clear Chat History", use_container_width=True):
-        # Reset the messages and generate a fresh session ID
-        st.session_state.messages = []
-        st.session_state.session_id = str(uuid.uuid4())
-        st.success("Chat history cleared!")
-        
-    st.divider()
-    
-    # Repository Status Dashboard
-    st.subheader("📊 System Status")
-    st.markdown("**Target Repo:** `pallets/flask`")
-    st.markdown("**Status:** ✅ Indexed & Ready")
-    st.markdown("**Vector DB:** ChromaDB")
-    st.markdown("**LLM Engine:** Llama 3.1 (Groq)")
-
-# 3. Main Interface Header
-st.title("🧩 GitHub Repository Assistant")
-st.markdown("Your AI pair programmer. Ask complex questions about the codebase, and get answers backed by the actual source code.")
-st.divider()
-
-# 4. Initialize Session State
-if "session_id" not in st.session_state:
-    st.session_state.session_id = str(uuid.uuid4())
+# Initialize session state for memory
 if "messages" not in st.session_state:
     st.session_state.messages = []
+if "repo_initialized" not in st.session_state:
+    st.session_state.repo_initialized = False
+if "session_id" not in st.session_state:
+    st.session_state.session_id = str(uuid.uuid4())
 
-# 5. Empty State / Welcome Screen
-if len(st.session_state.messages) == 0:
-    st.info("👋 Welcome! Try asking one of the questions below to get started.")
-    col1, col2 = st.columns(2)
-    with col1:
-        st.markdown("- *What is the main purpose of the Flask class?*")
-        st.markdown("- *How are routes handled in this repository?*")
-    with col2:
-        st.markdown("- *Can you explain how the Request object is structured?*")
-        st.markdown("- *Show me a code example of error handling.*")
+st.sidebar.title("Repository Settings")
+repo_url = st.sidebar.text_input("Enter GitHub URL:", placeholder="https://github.com/user/repo")
 
-# 6. Render Chat History with Custom Avatars
+if st.sidebar.button("Initialize Repository"):
+    if repo_url:
+        with st.spinner("Cloning, chunking, and indexing..."):
+            try:
+                # 1. Run the NEW ingestion engine that safely handles file locks!
+                num_docs, num_chunks = process_github_repo(repo_url)
+                    
+                # 2. Tell the UI it is ready
+                st.session_state.repo_initialized = True
+                    
+                # 3. Clear past chat history so it doesn't mix up the old repo
+                st.session_state.messages = []
+                st.session_state.session_id = str(uuid.uuid4())
+                    
+                st.success(f"Repository loaded! Processed {num_docs} files into {num_chunks} chunks.")
+                    
+                    # Force a quick UI refresh to reconnect to the fresh database
+                time.sleep(2)
+                st.rerun()
+                    
+            except Exception as e:
+                st.error(f"Error loading repo: {e}")
+    
+
+# Chat Interface
+st.title("Chat with your Repo")
+
+# Display historical messages
 for message in st.session_state.messages:
-    avatar = "🧑‍💻" if message["role"] == "user" else "🤖"
-    with st.chat_message(message["role"], avatar=avatar):
+    with st.chat_message(message["role"]):
         st.markdown(message["content"])
 
-# 7. Chat Input & Processing
-if prompt := st.chat_input("Ask a question about the Flask repository..."):
-    
-    # Display user message
-    st.session_state.messages.append({"role": "user", "content": prompt})
-    with st.chat_message("user", avatar="🧑‍💻"):
-        st.markdown(prompt)
-    
-    # Display assistant response
-    with st.chat_message("assistant", avatar="🤖"):
-        with st.spinner("🔍 Scanning repository and thinking..."):
-            try:
-                # Invoke the chain with the session ID for memory
-                response = chain.invoke(
-                    {"question": prompt},
-                    config={"configurable": {"session_id": st.session_state.session_id}}
-                )
-                st.markdown(response)
-                st.session_state.messages.append({"role": "assistant", "content": response})
-            except Exception as e:
-                st.error(f"❌ An error occurred: {e}")
+if st.session_state.get("repo_initialized", False):
+    if prompt := st.chat_input("Ask a question about the repository..."):
+        
+        # 1. Add user message to UI state
+        st.session_state.messages.append({"role": "user", "content": prompt})
+        with st.chat_message("user"):
+            st.markdown(prompt)
+            
+        # 2. Generate and display the AI's response
+        with st.chat_message("assistant"):
+            with st.spinner("Thinking..."):
+                try:
+                    # Execute your LangChain logic with the fresh chain
+                    response = get_chain().invoke(
+                        {"question": prompt},
+                        config={"configurable": {"session_id": st.session_state.session_id}}
+                    )
+
+                    
+                    st.markdown(response)
+                    
+                    # Save AI response to UI state
+                    st.session_state.messages.append({"role": "assistant", "content": response})
+                    
+                except Exception as e:
+                    st.error(f"Error generating response: {e}")
+else:
+    st.info("Please initialize a repository in the sidebar to start chatting.")

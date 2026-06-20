@@ -1,18 +1,15 @@
-from langchain_community.document_loaders import DirectoryLoader, TextLoader
 import os
+import shutil
+from langchain_community.document_loaders import GitLoader
 
-# Create a bulletproof absolute path to the repo folder
-base_dir = os.path.dirname(os.path.abspath(__file__))
-repo_path = os.path.join(base_dir, "..", "repo")
-
-# Initialize the loader
-loader = DirectoryLoader(
-    repo_path,
-    glob="**/*.py",
-    loader_cls=TextLoader,
-    show_progress=True
-)
-
-# Load the documents into the 'docs' variable
-docs = loader.load()
-print(f"Loaded {len(docs)} documents from the repo.")
+def load_github_repo(repo_url):
+    repo_path = "./temp_repo"
+    
+    # 1. Clean up the old repository before cloning a new one
+    if os.path.exists(repo_path):
+        shutil.rmtree(repo_path)
+        
+    # 2. Clone the new repository
+    loader = GitLoader(repo_path=repo_path, clone_url=repo_url, branch="main")
+    
+    return loader.load()
