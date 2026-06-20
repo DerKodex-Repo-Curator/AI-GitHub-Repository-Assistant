@@ -1,33 +1,64 @@
-# AI GitHub Repository Assistant 🤖📁
+# 🧩 AI GitHub Repository Assistant 
 
 **🌟 [Try the Live App Here!](https://ai-app-repository-assistant-f7bvnfzdstyehtwxbwscb8.streamlit.app/)**
 
-AI GitHub Repository Assistant is a powerful tool built to analyze, chat with, and retrieve information from GitHub repositories using Retrieval-Augmented Generation (RAG). It allows users to input a GitHub repository and seamlessly ask questions about the codebase, documentation, and overall structure.
+The **AI GitHub Repository Assistant** is an end-to-end Retrieval-Augmented Generation (RAG) application that acts as your AI pair programmer. By simply pasting a GitHub repository URL, the assistant dynamically clones, chunks, and embeds the codebase into a local vector database, allowing you to ask complex questions and get code-backed answers instantly.
 
-## 🚀 Features
+---
 
-* **Repository Loading:** Automatically fetches and processes repository files.
-* **Intelligent Code Chunking:** Breaks down large codebases into manageable contexts.
-* **Vector Embeddings & Storage:** Uses advanced embeddings and ChromaDB for fast, efficient vector search.
-* **Groq LLM Integration:** Powered by Groq's blazing-fast inference for rapid, accurate responses.
-* **Streamlit UI:** An intuitive, user-friendly web interface for chatting with the repository.
+## 🚀 Key Features
 
-## 🛠️ Project Structure
+* **Dynamic Repository Ingestion:** Paste any public GitHub URL directly into the UI to instantly clone and process the codebase.
+* **Intelligent File Parsing:** Automatically traverses directories to extract and chunk source code (`.py`, `.js`, `.md`, `.html`, etc.) while gracefully handling read errors.
+* **100% Free Local Embeddings:** Utilizes `sentence-transformers` and the open-source `BAAI/bge-small-en-v1.5` model to generate embeddings entirely on your local machine—no OpenAI API key required.
+* **Conversational Memory:** Powered by LangChain's `RunnableWithMessageHistory`, the assistant remembers previous questions and context for a seamless chat experience.
+* **Blazing Fast Inference:** Integrated with **Groq** to leverage the `Llama 3.1` model for near-instantaneous token generation.
+* **Premium Custom UI:** Features a custom Streamlit interface styled with a sleek GitHub Dark Mode aesthetic, custom chat bubbles, and session management.
 
-* `src/app.py` / `src/ui.py`: Entry points for the Streamlit user interface.
-* `src/loader.py`: Handles fetching and loading data from GitHub.
-* `src/chunker.py`: Splits the retrieved code/text into smaller, semantic chunks.
-* `src/embeddings.py`: Manages the generation of text embeddings.
-* `src/vectorstore.py`: Interacts with ChromaDB to store and retrieve vectors.
-* `src/retriever.py`: Fetches the most relevant document chunks based on user queries.
-* `src/llm.py`: Connects to the Groq API for large language model generation.
-* `src/chain.py`: Orchestrates the RAG pipeline (connecting the retriever to the LLM).
+---
 
-## ⚙️ Prerequisites
+## 🛠️ Tech Stack
 
-* Python 3.8+
-* A [Groq API Key](https://console.groq.com/keys)
+* **Frontend:** Streamlit, Custom CSS
+* **Orchestration:** LangChain (LCEL)
+* **LLM Engine:** Groq (`llama-3.1-8b-instant`)
+* **Embedding Model:** Hugging Face (`BAAI/bge-small-en-v1.5`)
+* **Vector Database:** ChromaDB
+
+---
+
+## 💻 Local Installation & Setup
+
+Want to run this assistant on your own machine? Follow these steps:
+
+### 1. Clone the repository
+```bash
+git clone [https://github.com/your-username/AI-GitHub-Repository-Assistant.git](https://github.com/your-username/AI-GitHub-Repository-Assistant.git)
+cd AI-GitHub-Repository-Assistant
+
+### 2. Install Dependencies
+Ensure you have Python installed, then run:
+pip install -r requirements.txt
+
+### 3.Set up your Environment Variables
+Create a .env file in the root directory and add your Groq API key:
+GROQ_API_KEY="gsk_your_api_key_here"
+
+### 4.Run the Application
+Navigate to the src folder and start the Streamlit server:
+streamlit run src/ui.py
 
 
-🛡️ License
-This project is licensed under the MIT License.
+📂 Project Structure
+src/ui.py - The main Streamlit application and custom CSS front-end.
+
+src/ingest.py - The data engine that safely clones repos, manages file locks, and chunks code.
+
+src/vectorstore.py / retriever.py - Manages the ChromaDB connection and document retrieval.
+
+src/embeddings.py - Initializes the local Hugging Face embedding model.
+
+src/llm.py - Connects to Groq's blazing-fast inference engine.
+
+src/chain.py - The LCEL pipeline integrating the LLM, retriever, and conversational memory.
+
