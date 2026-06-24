@@ -1,6 +1,6 @@
 # 🛡️ AI DevSecOps Code Reviewer
 
-**🌟 [Try the Live App Here!](https://ai-app-repository-assistant-f7bvnfzdstyehtwxbwscb8.streamlit.app/)**
+**🌟 [Try the Live App Here!](https://ai-app-repository-assistant-rkwuxna676wpkfutumolsh.streamlit.app/)**
 
 The **AI DevSecOps Code Reviewer** is an end-to-end Retrieval-Augmented Generation (RAG) application engineered to act as a Senior Security Architect. By simply pasting a GitHub repository URL, the assistant dynamically clones the codebase, performs intelligent Abstract Syntax Tree (AST) parsing, and embeds the logic into a local vector database to conduct deep security and bug audits.
 
