@@ -1,20 +1,19 @@
-# 🧩 AI GitHub Repository Assistant 
+# 🛡️ AI DevSecOps Code Reviewer
 
 **🌟 [Try the Live App Here!](https://ai-app-repository-assistant-f7bvnfzdstyehtwxbwscb8.streamlit.app/)**
 
-The **AI GitHub Repository Assistant** is an end-to-end Retrieval-Augmented Generation (RAG) application that acts as your AI pair programmer. By simply pasting a GitHub repository URL, the assistant dynamically clones, intelligently chunks, and embeds the codebase into a local vector database, allowing you to ask complex questions and get code-backed answers instantly.
+The **AI DevSecOps Code Reviewer** is an end-to-end Retrieval-Augmented Generation (RAG) application engineered to act as a Senior Security Architect. By simply pasting a GitHub repository URL, the assistant dynamically clones the codebase, performs intelligent Abstract Syntax Tree (AST) parsing, and embeds the logic into a local vector database to conduct deep security and bug audits.
 
 ---
 
 ## 🚀 Key Features
 
-* **🧠 Syntax-Aware Multi-Language Parsing:** Utilizes LangChain's `Language` parsers to intelligently split code along function and class boundaries rather than arbitrary character limits. 
-  * *Supported extensions:* `.py`, `.js`, `.jsx`, `.ts`, `.tsx`, `.java`, `.cpp`, `.go`, `.rs`, `.html`, `.md`, `.yaml`, `.json`
-* **Dynamic Repository Ingestion:** Paste any public GitHub URL directly into the UI to instantly clone and process the codebase. Gracefully handles file locks and background cache clearing.
-* **100% Free Local Embeddings:** Utilizes `sentence-transformers` and the open-source `BAAI/bge-small-en-v1.5` model to generate embeddings entirely on your local machine—no OpenAI API key required.
-* **Conversational Memory:** Powered by LangChain's `RunnableWithMessageHistory`, the assistant remembers previous questions and context for a seamless chat experience.
-* **Blazing Fast Inference:** Integrated with **Groq** to leverage the `Llama 3.1` model for near-instantaneous token generation.
-* **Premium Custom UI:** Features a custom Streamlit interface styled with a sleek GitHub Dark Mode aesthetic, custom chat bubbles, and session management.
+* **🧠 AST-Level Parsing:** Utilizes Python's native `ast` module and LangChain's `Language` parsers to intelligently split code along function and class boundaries, ensuring logical context is never broken.
+* **🛡️ Automated Security Audits:** Features a dedicated one-click review engine that scans the database for bugs, security vulnerabilities, code smells, and performance bottlenecks.
+* **📥 Exportable Reports:** Instantly generate and download beautifully formatted Markdown (`.md`) audit reports to share with your engineering team.
+* **100% Free Local Embeddings:** Utilizes `sentence-transformers` and the open-source `BAAI/bge-small-en-v1.5` model to generate embeddings entirely on your local machine.
+* **Blazing Fast Inference:** Integrated with **Groq** to leverage the `Llama 3.1` model for near-instantaneous code analysis.
+* **Premium Enterprise UI:** Features a custom Streamlit interface styled with a sleek GitHub Dark Mode aesthetic, dashboard metrics, and intuitive state management.
 
 ---
 
@@ -22,7 +21,7 @@ The **AI GitHub Repository Assistant** is an end-to-end Retrieval-Augmented Gene
 
 * **Frontend:** Streamlit, Custom CSS
 * **Orchestration:** LangChain (LCEL)
-* **Text Splitters:** RecursiveCharacterTextSplitter (with dynamic Language Enums)
+* **Text Splitters:** Custom AST Extractor + RecursiveCharacterTextSplitter 
 * **LLM Engine:** Groq (`llama-3.1-8b-instant`)
 * **Embedding Model:** Hugging Face (`BAAI/bge-small-en-v1.5`)
 * **Vector Database:** ChromaDB
@@ -31,7 +30,7 @@ The **AI GitHub Repository Assistant** is an end-to-end Retrieval-Augmented Gene
 
 ## 💻 Local Installation & Setup
 
-Want to run this assistant on your own machine? Follow these steps:
+Want to run this DevSecOps assistant on your own machine? Follow these steps:
 
 ### 1. Clone the repository
 ```bash
