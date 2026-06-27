@@ -1,4 +1,5 @@
-# 🛡️ AI DevSecOps Code Reviewer
+# 🛡️ AI-Github-Assistant
+
 
 **🌟 [Try the Live App Here!](https://ai-app-repository-assistant-rkwuxna676wpkfutumolsh.streamlit.app/)**
 
